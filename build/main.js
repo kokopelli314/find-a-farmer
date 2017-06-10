@@ -4707,8 +4707,8 @@ module.exports = __webpack_amd_options__;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+// Implementation with Node's http libraries
 var get = exports.get = function get(url) {
-
     // return new pending promise
     return new Promise(function (resolve, reject) {
         // select http or https module, depending on reqested url
@@ -4736,6 +4736,27 @@ var get = exports.get = function get(url) {
     });
 };
 
+// Implementation with XMLHttpRequest
+var get2 = exports.get2 = function get2(url) {
+    // return new pending promise
+    return new Promise(function (resolve, reject) {
+        var request = new XMLHttpRequest();
+        var data = [];
+        request.onreadystatechange = function () {
+            if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
+                console.log('request done!');
+                console.log(request.response);
+                resolve(request.response);
+            } else if (request.readyState == XMLHttpRequest.DONE && (request.status < 200 || request.status > 299)) {
+                reject(new Error('Failed to load page - status: ' + request.status));
+            }
+        };
+
+        request.open('GET', url);
+        request.send(null);
+    });
+};
+
 var HttpClient = function HttpClient() {
     this.get = function (url, callback) {
         var request = new XMLHttpRequest();
@@ -4759,15 +4780,15 @@ var HttpClient = function HttpClient() {
 "use strict";
 
 
-var _http = __webpack_require__(19);
+var _httpPromise = __webpack_require__(19);
 
-var http = _interopRequireWildcard(_http);
+var http = _interopRequireWildcard(_httpPromise);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function getLocal(zip, callback) {
     var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=";
-    return http.get(url + zip).then(JSON.parse);
+    return http.get2(url + zip).then(JSON.parse);
 }
 
 function getDetail(id) {
