@@ -2,14 +2,12 @@ import * as http from './http-promise';
 
 function getLocal(zip, callback) {
     const url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip="
-    return http.get2(url + zip)
-                    .then(JSON.parse);
+    return http.get(url + zip, 'json');
 }
 
 function getDetail(id) {
     const url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=";
-    return http.get(url + id)
-                    .then(JSON.parse);
+    return http.get(url + id, 'json');
 }
 
 function getAll(marketData) {

@@ -4708,7 +4708,7 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 // Implementation with Node's http libraries
-var get = exports.get = function get(url) {
+var getNodeStyle = exports.getNodeStyle = function getNodeStyle(url) {
     // return new pending promise
     return new Promise(function (resolve, reject) {
         // select http or https module, depending on reqested url
@@ -4737,23 +4737,47 @@ var get = exports.get = function get(url) {
 };
 
 // Implementation with XMLHttpRequest
-var get2 = exports.get2 = function get2(url) {
+var getXMLHttpRequest = exports.getXMLHttpRequest = function getXMLHttpRequest(url) {
     // return new pending promise
     return new Promise(function (resolve, reject) {
         var request = new XMLHttpRequest();
-        var data = [];
         request.onreadystatechange = function () {
             if (request.readyState == XMLHttpRequest.DONE && request.status == 200) {
-                console.log('request done!');
-                console.log(request.response);
                 resolve(request.response);
             } else if (request.readyState == XMLHttpRequest.DONE && (request.status < 200 || request.status > 299)) {
                 reject(new Error('Failed to load page - status: ' + request.status));
             }
         };
-
         request.open('GET', url);
         request.send(null);
+    });
+};
+
+// Implementation with jQuery
+var get = exports.get = function get(url) {
+    var dataType = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'text';
+
+    // return new pending promise
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            dataType: dataType,
+            async: true,
+            statusCode: {
+                404: function _(response) {
+                    reject(new Error('404 error - response: ' + response));
+                },
+                200: function _(response) {
+                    resolve(response);
+                }
+            },
+            error: function error(jqXHR, status, _error) {
+                console.log(status);
+                console.log(_error);
+                reject(new Error('Failed to load the thing - status ' + status));
+            }
+        });
     });
 };
 
@@ -4788,12 +4812,12 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function getLocal(zip, callback) {
     var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=";
-    return http.get2(url + zip).then(JSON.parse);
+    return http.get(url + zip, 'json');
 }
 
 function getDetail(id) {
     var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=";
-    return http.get(url + id).then(JSON.parse);
+    return http.get(url + id, 'json');
 }
 
 function getAll(marketData) {
