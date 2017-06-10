@@ -14,22 +14,11 @@ function getAll(marketData) {
     let data = marketData['results'];
     for (var i=0; i < data.length; i++) {
         let market = data[i];
-        console.log(market['id']);
         getDetail(market['id'])
             .then(printData);
     }
 }
 
-function printData(data) {
-    let text = JSON.stringify(data, null, 2);
-    document.getElementById('data').innerHTML += text;
-}
-
-function test() {
-    getLocal(80526)
-        .then((data) => makeSummaries(data['results'], document.getElementById('summary-wrapper')))
-        .catch((err) => console.log(err));
-}
 
 function makeSummaries(data, parent) {
     const className = 'market-summary';
@@ -45,9 +34,9 @@ function makeSummaries(data, parent) {
 
         getDetail(market['id'])
             .then((data) => {
-                console.log(data);
                 const address = document.createElement('p');
-                address.innerHTML = data['Address'];
+                address.innerHTML = '<a href=' + data['GoogleLink'] + '>'
+                                    + data['Address'] + '</a>';
                 summary.appendChild(address);
             });
 
@@ -56,4 +45,18 @@ function makeSummaries(data, parent) {
     }
 }
 
-test();
+
+function init() {
+    // Listen for zip code search
+    $('#submit-search').click((e) => {
+        // clear old results
+        $('.market-summary-wrapper').empty();
+
+        // generate new results
+        getLocal($('#zipcode').val())
+            .then((data) => makeSummaries(data['results'], document.getElementById('summary-wrapper')))
+            .catch((err) => console.log(err));
+    });
+}
+
+$(document).ready(init);
