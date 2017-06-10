@@ -27,12 +27,25 @@ function printData(data) {
 
 function test() {
     getLocal(80526)
-        // .then(printData)
-        .then((data) => {
-            printData(data['results']);
-            getAll(data);
-        })
+        .then((data) => makeSummaries(data['results'], document.getElementById('summary-wrapper')))
         .catch((err) => console.log(err));
+}
+
+function makeSummaries(data, parent) {
+    const className = 'market-summary';
+    const numberOfMarkets = Math.min(data.length, 9);
+
+    for (var i=0; i < numberOfMarkets; i++) {
+        const market = data[i];
+
+        const summary = document.createElement('div');
+        summary.className = className;
+        const name = document.createElement('h3');
+        name.innerHTML = market['marketname'];
+
+        summary.appendChild(name);
+        parent.appendChild(summary);
+    }
 }
 
 test();

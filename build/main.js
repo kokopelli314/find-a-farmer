@@ -89,45 +89,18 @@ var get = exports.get = function get(url) {
             async: true,
             statusCode: {
                 404: function _(response) {
-                    reject(new Error('404 error - response: ' + response));
+                    return reject(new Error('404 error - response: ' + response));
                 },
                 200: function _(response) {
-                    resolve(response);
+                    return resolve(response);
                 }
             },
             error: function error(jqXHR, status, _error) {
-                console.log(status);
-                console.log(_error);
                 reject(new Error('Failed to load the thing - status ' + status));
             }
         });
     });
 };
-
-/*
-// Implementation with Node's http libraries
-export const getNodeStyle = function(url) {
-    // return new pending promise
-    return new Promise((resolve, reject) => {
-        // select http or https module, depending on reqested url
-        const lib = url.startsWith('https') ? require('https') : require('http');
-        const request = lib.get(url, (response) => {
-            // handle http errors
-            if (response.statusCode < 200 || response.statusCode > 299) {
-                reject(new Error('Failed to load page, status code: ' + response.statusCode));
-            }
-            // temporary data holder
-            const body = [];
-            // on every content chunk, push it to the data array
-            response.on('data', (chunk) => body.push(chunk));
-            // we are done, resolve promise with those joined chunks
-            response.on('end', () => resolve(body.join('')));
-        });
-        // handle connection errors of the request
-        request.on('error', (err) => reject(err))
-    })
-};
-*/
 
 // Implementation with XMLHttpRequest
 var getXMLHttpRequest = exports.getXMLHttpRequest = function getXMLHttpRequest(url) {
@@ -200,14 +173,28 @@ function printData(data) {
 }
 
 function test() {
-    getLocal(80526
-    // .then(printData)
-    ).then(function (data) {
-        printData(data['results']);
-        getAll(data);
+    getLocal(80526).then(function (data) {
+        return makeSummaries(data['results'], document.getElementById('summary-wrapper'));
     }).catch(function (err) {
         return console.log(err);
     });
+}
+
+function makeSummaries(data, parent) {
+    var className = 'market-summary';
+    var numberOfMarkets = Math.min(data.length, 9);
+
+    for (var i = 0; i < numberOfMarkets; i++) {
+        var market = data[i];
+
+        var summary = document.createElement('div');
+        summary.className = className;
+        var name = document.createElement('h3');
+        name.innerHTML = market['marketname'];
+
+        summary.appendChild(name);
+        parent.appendChild(summary);
+    }
 }
 
 test();
