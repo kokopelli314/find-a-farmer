@@ -155,7 +155,9 @@ function getLocal(zip, callback) {
 
 function getDetail(id) {
     var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=";
-    return http.get(url + id, 'json');
+    return http.get(url + id, 'json').then(function (data) {
+        return data['marketdetails'];
+    });
 }
 
 function getAll(marketData) {
@@ -184,7 +186,7 @@ function makeSummaries(data, parent) {
     var className = 'market-summary';
     var numberOfMarkets = Math.min(data.length, 9);
 
-    for (var i = 0; i < numberOfMarkets; i++) {
+    var _loop = function _loop() {
         var market = data[i];
 
         var summary = document.createElement('div');
@@ -192,8 +194,19 @@ function makeSummaries(data, parent) {
         var name = document.createElement('h3');
         name.innerHTML = market['marketname'];
 
+        getDetail(market['id']).then(function (data) {
+            console.log(data);
+            var address = document.createElement('p');
+            address.innerHTML = data['Address'];
+            summary.appendChild(address);
+        });
+
         summary.appendChild(name);
         parent.appendChild(summary);
+    };
+
+    for (var i = 0; i < numberOfMarkets; i++) {
+        _loop();
     }
 }
 

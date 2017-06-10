@@ -7,7 +7,7 @@ function getLocal(zip, callback) {
 
 function getDetail(id) {
     const url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=";
-    return http.get(url + id, 'json');
+    return http.get(url + id, 'json').then((data) => data['marketdetails']);
 }
 
 function getAll(marketData) {
@@ -42,6 +42,14 @@ function makeSummaries(data, parent) {
         summary.className = className;
         const name = document.createElement('h3');
         name.innerHTML = market['marketname'];
+
+        getDetail(market['id'])
+            .then((data) => {
+                console.log(data);
+                const address = document.createElement('p');
+                address.innerHTML = data['Address'];
+                summary.appendChild(address);
+            });
 
         summary.appendChild(name);
         parent.appendChild(summary);
