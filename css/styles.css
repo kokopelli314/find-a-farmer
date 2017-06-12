@@ -16,6 +16,15 @@ input[type="text"] {
 button {
     width: 25%;
 }
+.more-results-wrapper {
+    text-align: center;
+}
+#more-results {
+    display: none;
+}
+#more-results.visible {
+    display: inline-block;
+}
 
 
 .market-summary-wrapper {

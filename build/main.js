@@ -148,9 +148,16 @@ var http = _interopRequireWildcard(_httpPromise);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
+var markets = {
+    data: {},
+    lastDisplayed: 0
+};
+
 function getLocal(zip, callback) {
     var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=";
-    return http.get(url + zip, 'json');
+    return http.get(url + zip, 'json').then(function (data) {
+        return data['results'];
+    });
 }
 
 function getDetail(id) {
@@ -161,37 +168,44 @@ function getDetail(id) {
 }
 
 function getAll(marketData) {
-    var data = marketData['results'];
-    for (var i = 0; i < data.length; i++) {
-        var market = data[i];
+    for (var i = 0; i < marketData.length; i++) {
+        var market = marketData[i];
         getDetail(market['id']).then(printData);
     }
 }
 
-function makeSummaries(data, parent) {
-    var className = 'market-summary';
-    var numberOfMarkets = Math.min(data.length, 9);
+function addSummary(market, parent) {
+    var summary = document.createElement('div');
+    summary.className = 'market-summary';
+    var name = document.createElement('h3');
+    name.innerHTML = market['marketname'];
 
-    var _loop = function _loop() {
-        var market = data[i];
+    getDetail(market['id']).then(function (data) {
+        var address = document.createElement('p');
+        address.innerHTML = '<a href=' + data['GoogleLink'] + '>' + data['Address'] + '</a>';
+        summary.appendChild(address);
+    });
 
-        var summary = document.createElement('div');
-        summary.className = className;
-        var name = document.createElement('h3');
-        name.innerHTML = market['marketname'];
+    summary.appendChild(name);
+    parent.append(summary);
+}
 
-        getDetail(market['id']).then(function (data) {
-            var address = document.createElement('p');
-            address.innerHTML = '<a href=' + data['GoogleLink'] + '>' + data['Address'] + '</a>';
-            summary.appendChild(address);
-        });
-
-        summary.appendChild(name);
-        parent.appendChild(summary);
-    };
-
-    for (var i = 0; i < numberOfMarkets; i++) {
-        _loop();
+function makeSummaries(parent, numberToAdd) {
+    console.log('len = ' + markets.data.length);
+    console.log('last = ' + markets.lastDisplayed);
+    for (var i = markets.lastDisplayed; i < markets.lastDisplayed + numberToAdd; i++) {
+        // if all the markets have been displayed, break
+        console.log('i=' + i);
+        if (i > markets.data.length - 1) {
+            console.log('too many ' + i);
+            break;
+        }
+        addSummary(markets.data[i], parent);
+    }
+    markets.lastDisplayed = i;
+    console.log('new last = ' + markets.lastDisplayed);
+    if (markets.lastDisplayed >= markets.data.length) {
+        $('#more-results').removeClass('visible');
     }
 }
 
@@ -203,7 +217,14 @@ function init() {
 
         // generate new results
         getLocal($('#zipcode').val()).then(function (data) {
-            return makeSummaries(data['results'], document.getElementById('summary-wrapper'));
+            markets.data = data;
+            makeSummaries($('#summary-wrapper'), 9);
+
+            // Display button to get more results
+            $('#more-results').addClass('visible');
+            $('#more-results').click(function (e) {
+                makeSummaries($('#summary-wrapper'), 9);
+            });
         }).catch(function (err) {
             return console.log(err);
         });
