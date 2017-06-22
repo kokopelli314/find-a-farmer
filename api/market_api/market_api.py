@@ -27,7 +27,9 @@ app.config.from_envvar('MARKETS_API_SETTINGS', silent=True)
 def get_local_markets(zip_code):
     """Return brief summary of markets near a given zip code."""
     url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + str(zip_code)
-    return requests.get(url).content
+    results = requests.get(url).content
+    print(results)
+    return results
 
 @app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])
 def get_market_detail(market_id):
@@ -43,9 +45,6 @@ def query_db(query, args=(), one=False):
     r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]
     return (r[0] if r else None) if one else r
-
-
-
 
 
 def init_db():
@@ -97,6 +96,7 @@ def close_db(error):
     """Closes the database at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
