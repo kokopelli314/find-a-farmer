@@ -34,8 +34,15 @@ def get_local_markets(zip_code):
 @app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])
 def get_market_detail(market_id):
     """Get all data available for a single market."""
-    entries = query_db('select * from Markets where FMID=?', (market_id,))
-    return json.dumps(entries)
+    # Combine data from CSV file/database...
+    db_entry = query_db('select * from Markets where FMID=?', (market_id,), one=True)
+    # ...and web API
+    url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=" + str(market_id)
+    site_response = requests.get(url).content
+    site_data = json.loads(site_response.decode('utf-8'))
+    site_data = site_data['marketdetails']
+    # retun data combined into one JSON string
+    return json.dumps({**db_entry, **site_data})
 
 
 def query_db(query, args=(), one=False):

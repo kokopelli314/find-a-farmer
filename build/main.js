@@ -159,9 +159,7 @@ function getLocal(zip, callback) {
 
 function getDetail(id) {
     var url = BASE_URL + '/id/' + id;
-    return http.get(url, 'json').then(function (data) {
-        return data['marketdetails'];
-    });
+    return http.get(url, 'json');
 }
 
 function getAll(marketData) {
@@ -178,6 +176,7 @@ function addSummary(market, parent) {
     name.innerHTML = market['marketname'];
 
     getDetail(market['id']).then(function (data) {
+        console.log(data);
         var address = document.createElement('p');
         address.innerHTML = '<a href=' + data['GoogleLink'] + '>' + data['Address'] + '</a>';
         summary.appendChild(address);

@@ -10,7 +10,7 @@ function getLocal(zip, callback) {
 
 function getDetail(id) {
     const url = BASE_URL + '/id/' + id;
-    return http.get(url, 'json').then((data) => data['marketdetails']);
+    return http.get(url, 'json');
 }
 
 function getAll(marketData) {
@@ -32,6 +32,7 @@ function addSummary(market, parent) {
 
     getDetail(market['id'])
         .then((data) => {
+            console.log(data);
             const address = document.createElement('p');
             address.innerHTML = '<a href=' + data['GoogleLink'] + '>'
                                 + data['Address'] + '</a>';
