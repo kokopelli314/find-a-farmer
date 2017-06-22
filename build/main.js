@@ -148,21 +148,18 @@ var http = _interopRequireWildcard(_httpPromise);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var markets = {
-    data: {},
-    lastDisplayed: 0
-};
+var BASE_URL = 'http://127.0.0.1:5000/yourmarket/api';
 
 function getLocal(zip, callback) {
-    var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=";
-    return http.get(url + zip, 'json').then(function (data) {
+    var url = BASE_URL + '/zip/' + zip;
+    return http.get(url, 'json').then(function (data) {
         return data['results'];
     });
 }
 
 function getDetail(id) {
-    var url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/mktDetail?id=";
-    return http.get(url + id, 'json').then(function (data) {
+    var url = BASE_URL + '/id/' + id;
+    return http.get(url, 'json').then(function (data) {
         return data['marketdetails'];
     });
 }
@@ -190,40 +187,42 @@ function addSummary(market, parent) {
     parent.append(summary);
 }
 
-function makeSummaries(parent, numberToAdd) {
-    console.log('len = ' + markets.data.length);
-    console.log('last = ' + markets.lastDisplayed);
+function makeSummaries(markets, parent, numberToAdd) {
     for (var i = markets.lastDisplayed; i < markets.lastDisplayed + numberToAdd; i++) {
         // if all the markets have been displayed, break
-        console.log('i=' + i);
         if (i > markets.data.length - 1) {
-            console.log('too many ' + i);
             break;
         }
         addSummary(markets.data[i], parent);
     }
     markets.lastDisplayed = i;
-    console.log('new last = ' + markets.lastDisplayed);
     if (markets.lastDisplayed >= markets.data.length) {
         $('#more-results').removeClass('visible');
     }
 }
 
 function init() {
+    var markets = {
+        data: {},
+        lastDisplayed: 0
+    };
+
     // Listen for zip code search
     $('#submit-search').click(function (e) {
         // clear old results
         $('.market-summary-wrapper').empty();
+        markets.data = {};
+        markets.lastDisplayed = 0;
 
         // generate new results
         getLocal($('#zipcode').val()).then(function (data) {
             markets.data = data;
-            makeSummaries($('#summary-wrapper'), 9);
+            makeSummaries(markets, $('#summary-wrapper'), 9);
 
             // Display button to get more results
             $('#more-results').addClass('visible');
             $('#more-results').click(function (e) {
-                makeSummaries($('#summary-wrapper'), 9);
+                makeSummaries(markets, $('#summary-wrapper'), 9);
             });
         }).catch(function (err) {
             return console.log(err);
