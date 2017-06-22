@@ -1,10 +1,16 @@
 import os
 import csv
 import sqlite3
+import json
+import requests
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
+from flask_cors import CORS
+
+ROOT_URL = '/yourmarket/api'
 
 app = Flask(__name__)
+CORS(app)   # Allow cross-origin requests
 app.config.from_object(__name__)
 
 app.config.update(dict(
@@ -17,11 +23,29 @@ app.config.from_envvar('MARKETS_API_SETTINGS', silent=True)
 
 
 
-def connect_db():
-    """Opens a new database connection."""
-    rv = sqlite3.connect(app.config['DATABASE'])
-    rv.row_factory = sqlite3.Row
-    return rv
+@app.route(ROOT_URL + '/zip/<int:zip_code>', methods=['GET'])
+def get_local_markets(zip_code):
+    """Return brief summary of markets near a given zip code."""
+    url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + str(zip_code)
+    return requests.get(url).content
+
+@app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])
+def get_market_detail(market_id):
+    """Get all data available for a single market."""
+    entries = query_db('select * from Markets where FMID=?', (market_id,))
+    return json.dumps(entries)
+
+
+def query_db(query, args=(), one=False):
+    """Wrapper for database queries. Returns dictionary in JSONable format."""
+    cur = get_db().cursor()
+    cur.execute(query, args)
+    r = [dict((cur.description[i][0], value) \
+               for i, value in enumerate(row)) for row in cur.fetchall()]
+    return (r[0] if r else None) if one else r
+
+
+
 
 
 def init_db():
@@ -56,6 +80,12 @@ def initdb_command():
     print('Initialized the database.')
 
 
+def connect_db():
+    """Opens a new database connection."""
+    rv = sqlite3.connect(app.config['DATABASE'])
+    rv.row_factory = sqlite3.Row
+    return rv
+
 def get_db():
     """Opens a new database connection if there currently isn't one for the application context."""
     if not hasattr(g, 'sqlite_db'):
@@ -67,3 +97,6 @@ def close_db(error):
     """Closes the database at the end of the request."""
     if hasattr(g, 'sqlite_db'):
         g.sqlite_db.close()
+
+if __name__ == '__main__':
+    app.run(debug=True)
