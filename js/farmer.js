@@ -21,7 +21,17 @@ function getAll(marketData) {
     }
 }
 
+// Get Google Maps link from market detail data
+function getGoogleLink(market) {
+    const link = 'https://maps.google.com/?q=' + encodeURI(market['y'] + ',' +
+                            market['x'] + ' ("' + market['MarketName'] + '")');
+    return (link);
+}
 
+function getMarketAddress(market) {
+    const address = [market['street'], market['city'], market['zip']].join(', ');
+    return (address);
+}
 
 
 function addSummary(market, parent) {
@@ -32,10 +42,10 @@ function addSummary(market, parent) {
 
     getDetail(market['id'])
         .then((data) => {
-            console.log(data);
             const address = document.createElement('p');
-            address.innerHTML = '<a href=' + data['GoogleLink'] + '>'
-                                + data['Address'] + '</a>';
+            const link = getGoogleLink(data);
+            const text = getMarketAddress(data);
+            address.innerHTML = '<a href=' + link + '>' + text + '</a>';
             summary.appendChild(address);
         });
 
@@ -53,16 +63,20 @@ function makeSummaries(markets, parent, numberToAdd) {
         addSummary(markets.data[i], parent);
     }
     markets.lastDisplayed = i;
-    if (markets.lastDisplayed >= markets.data.length) {
+    if (markets.hasMore()) {
         $('#more-results').removeClass('visible');
     }
 }
 
 
 function init() {
+    // Market data singleton
     const markets = {
-        data: {},
-        lastDisplayed: 0
+        data: [],
+        lastDisplayed: 0,
+        hasMore: () => {
+            return (this.data != undefined && this.lastDisplayed >= this.data.length);
+        },
     };
 
     // Listen for zip code search
@@ -79,10 +93,12 @@ function init() {
                 makeSummaries(markets, $('#summary-wrapper'), 9);
 
                 // Display button to get more results
-                $('#more-results').addClass('visible');
-                $('#more-results').click((e) => {
-                    makeSummaries(markets, $('#summary-wrapper'), 9);
-                });
+                if (markets.hasMore()) {
+                    $('#more-results').addClass('visible');
+                    $('#more-results').click((e) => {
+                        makeSummaries(markets, $('#summary-wrapper'), 9);
+                    });
+                }
             })
             .catch((err) => console.log(err));
     });
