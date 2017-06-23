@@ -26,6 +26,10 @@ button {
     display: inline-block;
 }
 
+.distance {
+    color: #999;
+}
+
 
 .market-summary-wrapper {
     display: flex;

@@ -37,8 +37,12 @@ function getMarketAddress(market) {
 function addSummary(market, parent) {
     const summary = document.createElement('div');
     summary.className = 'market-summary';
+
+    // Create header for elemen
     const name = document.createElement('h3');
-    name.innerHTML = market['marketname'];
+    const milesAndName = market['marketname'].split(/ (.+)/);
+    $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
+    $('<span> ' + milesAndName[1] + '</span>').addClass('market-name').appendTo(name);
 
     getDetail(market['id'])
         .then((data) => {

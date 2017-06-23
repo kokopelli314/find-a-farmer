@@ -28,7 +28,6 @@ def get_local_markets(zip_code):
     """Return brief summary of markets near a given zip code."""
     url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + str(zip_code)
     results = requests.get(url).content
-    print(results)
     return results
 
 @app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])

@@ -183,11 +183,14 @@ function getMarketAddress(market) {
 function addSummary(market, parent) {
     var summary = document.createElement('div');
     summary.className = 'market-summary';
+
+    // Create header for elemen
     var name = document.createElement('h3');
-    name.innerHTML = market['marketname'];
+    var milesAndName = market['marketname'].split(/ (.+)/);
+    $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
+    $('<span> ' + milesAndName[1] + '</span>').addClass('market-name').appendTo(name);
 
     getDetail(market['id']).then(function (data) {
-        console.log(data);
         var address = document.createElement('p');
         var link = getGoogleLink(data);
         var text = getMarketAddress(data);
