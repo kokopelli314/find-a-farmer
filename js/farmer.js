@@ -74,8 +74,8 @@ function init() {
     const markets = {
         data: [],
         lastDisplayed: 0,
-        hasMore: () => {
-            return (this.data != undefined && this.lastDisplayed >= this.data.length);
+        hasMore: function () { // can't use arrow function due to 'this' binding
+            return (this.data != undefined && this.lastDisplayed < this.data.length);
         },
     };
 

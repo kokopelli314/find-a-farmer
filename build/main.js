@@ -187,6 +187,7 @@ function addSummary(market, parent) {
     name.innerHTML = market['marketname'];
 
     getDetail(market['id']).then(function (data) {
+        console.log(data);
         var address = document.createElement('p');
         var link = getGoogleLink(data);
         var text = getMarketAddress(data);
@@ -213,14 +214,13 @@ function makeSummaries(markets, parent, numberToAdd) {
 }
 
 function init() {
-    var _this = this;
-
     // Market data singleton
     var markets = {
         data: [],
         lastDisplayed: 0,
         hasMore: function hasMore() {
-            return _this.data != undefined && _this.lastDisplayed >= _this.data.length;
+            // can't use arrow function due to 'this' binding
+            return this.data != undefined && this.lastDisplayed < this.data.length;
         }
     };
 
