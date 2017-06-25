@@ -6,7 +6,8 @@
   "scripts": {
     "babel": "babel --presets es2015 js/farmer.js -o build/farmer.js",
     "start": "http-server",
-    "webpack": "webpack"
+    "webpack": "webpack",
+    "go": "npm run webpack && npm run start"
   },
   "author": "",
   "license": "ISC",

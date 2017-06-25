@@ -1,37 +1,5 @@
-import * as http from './http-promise';
 
-const BASE_URL = 'http://127.0.0.1:5000/yourmarket/api'
-
-
-function getLocal(zip, callback) {
-    const url = BASE_URL + '/zip/' + zip;
-    return http.get(url, 'json').then((data) => data['results']);
-}
-
-function getDetail(id) {
-    const url = BASE_URL + '/id/' + id;
-    return http.get(url, 'json');
-}
-
-function getAll(marketData) {
-    for (var i=0; i < marketData.length; i++) {
-        let market = marketData[i];
-        getDetail(market['id'])
-            .then(printData);
-    }
-}
-
-// Get Google Maps link from market detail data
-function getGoogleLink(market) {
-    const link = 'https://maps.google.com/?q=' + encodeURI(market['y'] + ',' +
-                            market['x'] + ' ("' + market['MarketName'] + '")');
-    return (link);
-}
-
-function getMarketAddress(market) {
-    const address = [market['street'], market['city'], market['zip']].join(', ');
-    return (address);
-}
+import * as api from './market-data.js';
 
 
 function addSummary(market, parent) {
@@ -44,11 +12,12 @@ function addSummary(market, parent) {
     $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
     $('<span> ' + milesAndName[1] + '</span>').addClass('market-name').appendTo(name);
 
-    getDetail(market['id'])
+    api.detail(market['id'])
         .then((data) => {
+            // make address linking to maps
             const address = document.createElement('p');
-            const link = getGoogleLink(data);
-            const text = getMarketAddress(data);
+            const link = api.mapsLink(data);
+            const text = api.address(data);
             address.innerHTML = '<a href=' + link + '>' + text + '</a>';
             summary.appendChild(address);
         });
@@ -91,7 +60,7 @@ function init() {
         markets.lastDisplayed = 0;
 
         // generate new results
-        getLocal($('#zipcode').val())
+        api.local($('#zipcode').val())
             .then((data) => {
                 markets.data = data;
                 makeSummaries(markets, $('#summary-wrapper'), 9);
