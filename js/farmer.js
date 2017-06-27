@@ -1,4 +1,3 @@
-
 import * as api from './market-data.js';
 
 
@@ -6,7 +5,7 @@ function addSummary(market, parent) {
     const summary = document.createElement('div');
     summary.className = 'market-summary';
 
-    // Create header for elemen
+    // Create header for element
     const name = document.createElement('h3');
     const milesAndName = market['marketname'].split(/ (.+)/);
     $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
@@ -25,6 +24,7 @@ function addSummary(market, parent) {
     summary.appendChild(name);
     parent.append(summary);
 }
+
 
 function makeSummaries(markets, parent, numberToAdd) {
     for (var i=markets.lastDisplayed;
