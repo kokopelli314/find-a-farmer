@@ -1,7 +1,7 @@
 //  Wrapper for calls to retreive market data
 
 import * as http from './http-promise';
-const BASE_URL = 'http://127.0.0.1:5000/yourmarket/api'
+const BASE_URL = 'http://127.0.0.1:5000/yourmarket/api';
 
 // Return summary of markets near zip
 export function local(zip, callback) {
@@ -19,15 +19,15 @@ export function detail(id) {
 export function allDetails(marketData) {
     for (var i=0; i < marketData.length; i++) {
         let market = marketData[i];
-        getDetail(market['id'])
-            .then(printData);
+        getDetail(market['id']).then(printData);
     }
 }
 
 // Get Google Maps link from market detail data
 export function mapsLink(market) {
-    const link = 'https://maps.google.com/?q=' + encodeURI(market['y'] + ',' +
-                            market['x'] + ' ("' + market['MarketName'] + '")');
+    const link = 'https://maps.google.com/?q=' +
+                 encodeURI(market['y'] + ',' + market['x'] +
+                           ' ("' + market['MarketName'] + '")');
     return (link);
 }
 

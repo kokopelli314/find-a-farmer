@@ -143,7 +143,7 @@ function addSummary(market, parent) {
     var summary = document.createElement('div');
     summary.className = 'market-summary';
 
-    // Create header for elemen
+    // Create header for element
     var name = document.createElement('h3');
     var milesAndName = market['marketname'].split(/ (.+)/);
     $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
@@ -176,11 +176,24 @@ function makeSummaries(markets, parent, numberToAdd) {
     }
 }
 
+function addTagToggle(tagText, parent) {
+    var tag = $('<button>' + tagText + '</button>').addClass('tag-toggle');
+    tag.appendTo(parent);
+    tag.click(function (e) {
+        tag.toggleClass('selected');
+    });
+}
+
+function makeTags(markets, parent) {
+    addTagToggle('hello', parent);
+}
+
 function init() {
     // Market data singleton
     var markets = {
         data: [],
         lastDisplayed: 0,
+        // hasMore: true if there are more markets to display
         hasMore: function hasMore() {
             // can't use arrow function due to 'this' binding
             return this.data != undefined && this.lastDisplayed < this.data.length;
@@ -197,6 +210,8 @@ function init() {
         // generate new results
         api.local($('#zipcode').val()).then(function (data) {
             markets.data = data;
+
+            // Display market data
             makeSummaries(markets, $('#summary-wrapper'), 9);
 
             // Display button to get more results
@@ -206,6 +221,9 @@ function init() {
                     makeSummaries(markets, $('#summary-wrapper'), 9);
                 });
             }
+
+            // Show tags to toggle/filter with
+            makeTags(markets, $('#tag-toggle-wrapper'));
         }).catch(function (err) {
             return console.log(err);
         });

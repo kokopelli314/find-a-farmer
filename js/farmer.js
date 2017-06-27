@@ -42,11 +42,29 @@ function makeSummaries(markets, parent, numberToAdd) {
 }
 
 
+function addTagToggle(tagText, parent) {
+    const tag = $('<button>' + tagText + '</button>').addClass('tag-toggle');
+    tag.appendTo(parent);
+    tag.click((e) => {
+        tag.toggleClass('selected');
+    });
+}
+
+function makeTags(markets, parent) {
+    for (var i=0; i < markets.length; i++) {
+        addTagToggle(markets[i]['marketname'], parent);
+    }
+
+}
+
+
+
 function init() {
     // Market data singleton
     const markets = {
         data: [],
         lastDisplayed: 0,
+        // hasMore: true if there are more markets to display
         hasMore: function () { // can't use arrow function due to 'this' binding
             return (this.data != undefined && this.lastDisplayed < this.data.length);
         },
@@ -63,6 +81,8 @@ function init() {
         api.local($('#zipcode').val())
             .then((data) => {
                 markets.data = data;
+
+                // Display market data
                 makeSummaries(markets, $('#summary-wrapper'), 9);
 
                 // Display button to get more results
@@ -72,6 +92,9 @@ function init() {
                         makeSummaries(markets, $('#summary-wrapper'), 9);
                     });
                 }
+
+                // Show tags to toggle/filter with
+                makeTags(markets, $('#tag-toggle-wrapper'));
             })
             .catch((err) => console.log(err));
     });

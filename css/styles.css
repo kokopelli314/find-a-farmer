@@ -1,20 +1,30 @@
+body {
+    color: #222;
+}
+
 .search-wrapper {
     height: 2.5em;
     width: 100%;
     margin: auto;
     text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
-input[type="text"], button {
+input[type="text"], .big-button {
     height: 100%;
     font-size: 1.5em;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
+    color: inherit;
 }
 input[type="text"] {
     max-width: 70%;
 }
-button {
+.big-button {
     width: 25%;
+    background-color: hsl(250, 90%, 95%);
+    border: 1px solid #bbb;
 }
 .more-results-wrapper {
     text-align: center;
@@ -26,10 +36,33 @@ button {
     display: inline-block;
 }
 
-.distance {
-    color: #999;
+
+.tag-toggle-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px auto;
 }
 
+.tag-toggle {
+    margin: 2px 5px;
+    background-color: hsl(197, 44%, 79%);
+    color: #fefefe;
+    border: 0;
+    border-radius: 10px;
+}
+.tag-toggle:hover {
+    background-color: hsl(198, 62%, 71%);
+}
+.tag-toggle.selected {
+    background-color: hsl(198, 62%, 61%);
+    color: #fafafa;
+}
+
+
+.distance {
+    color: #888;
+}
 
 .market-summary-wrapper {
     display: flex;
@@ -37,7 +70,6 @@ button {
     justify-content: center;
     align-items: center;
     font-size: 1.2em;
-    color: #111;
 }
 
 .market-summary {
