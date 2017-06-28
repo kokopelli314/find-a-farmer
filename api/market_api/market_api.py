@@ -3,6 +3,7 @@ import csv
 import sqlite3
 import json
 import requests
+import secret_settings as secret
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash
 from flask_cors import CORS
@@ -22,13 +23,24 @@ app.config.update(dict(
 app.config.from_envvar('MARKETS_API_SETTINGS', silent=True)
 
 
-
 @app.route(ROOT_URL + '/zip/<int:zip_code>', methods=['GET'])
 def get_local_markets(zip_code):
-    """Return brief summary of markets near a given zip code."""
-    url = "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + str(zip_code)
+    """Return data for markets within 30 miles of a given zip code."""
+    url = 'https://www.zipcodeapi.com/rest/' + secret.ZIP_API_KEY + '/radius.json/' \
+            + str(zip_code) + '/30/mile'
     results = requests.get(url).content
-    return results
+    results = results.decode('utf-8').replace("'", '"')
+    data = json.loads(results)['zip_codes']
+
+    markets = []
+    for area in data:
+        area_zip = area['zip_code']
+        market = query_db('select * from Markets where zip=?', (area_zip,), one=True)
+        if market != None:
+            markets.append(market)
+
+    return json.dumps(markets)
+
 
 @app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])
 def get_market_detail(market_id):
