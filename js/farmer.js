@@ -38,7 +38,12 @@ function makeSummaries(markets, parent, numberToAdd) {
         added++; // increment number added so far
     }
     markets.lastDisplayed = i;
+    console.log('last = ' + markets.lastDisplayed + '; added=' + i);
+
+    // Display button to get more results
     if (markets.hasMore()) {
+        $('#more-results').addClass('visible');
+    } else {
         $('#more-results').removeClass('visible');
     }
 }
@@ -133,13 +138,10 @@ function init() {
                 // Display market data
                 makeSummaries(markets, $('#summary-wrapper'), 9);
 
-                // Display button to get more results
-                if (markets.hasMore()) {
-                    $('#more-results').addClass('visible');
-                    $('#more-results').click((e) => {
-                        makeSummaries(markets, $('#summary-wrapper'), 9);
-                    });
-                }
+                // Functionality for "more results" button
+                $('#more-results').click((e) => {
+                    makeSummaries(markets, $('#summary-wrapper'), 9);
+                });
 
                 // Show tags to toggle/filter with
                 makeTags(markets, $('#tag-toggle-wrapper'));
