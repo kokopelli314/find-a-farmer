@@ -95,9 +95,7 @@ var BASE_URL = 'http://127.0.0.1:5000/yourmarket/api';
 
 function local(zip, callback) {
     var url = BASE_URL + '/zip/' + zip;
-    return http.get(url, 'json').then(function (data) {
-        return data['results'];
-    });
+    return http.get(url, 'json');
 }
 
 // get detailed information for a certain market ID
@@ -140,25 +138,22 @@ var api = _interopRequireWildcard(_marketData);
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
 function addSummary(market, parent) {
-    var summary = document.createElement('div');
-    summary.className = 'market-summary';
+    var summary = $('<div/>').addClass('market-summary');
 
     // Create header for element
     var name = document.createElement('h3');
-    var milesAndName = market['marketname'].split(/ (.+)/);
-    $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
-    $('<span> ' + milesAndName[1] + '</span>').addClass('market-name').appendTo(name);
+    $('<span> ' + market['MarketName'] + '</span>').addClass('market-name').appendTo(name);
 
-    api.detail(market['id']).then(function (data) {
-        // make address linking to maps
-        var address = document.createElement('p');
-        var link = api.mapsLink(data);
-        var text = api.address(data);
-        address.innerHTML = '<a href=' + link + '>' + text + '</a>';
-        summary.appendChild(address);
-    });
+    // make address linking to maps
+    var address = document.createElement('p');
+    var link = api.mapsLink(market);
+    var text = api.address(market);
+    address.innerHTML = '<a href=' + link + '>' + text + '</a>';
 
-    summary.appendChild(name);
+    // update DOM
+    console.log('hi');
+    summary.append(name);
+    summary.append(address);
     parent.append(summary);
 }
 
@@ -185,7 +180,9 @@ function addTagToggle(tagText, parent) {
 }
 
 function makeTags(markets, parent) {
-    addTagToggle('hello', parent);
+    for (var i = 0; i < markets.length; i++) {
+        addTagToggle(markets[i]['marketname'], parent);
+    }
 }
 
 function init() {
@@ -210,6 +207,7 @@ function init() {
         // generate new results
         api.local($('#zipcode').val()).then(function (data) {
             markets.data = data;
+            console.log(data);
 
             // Display market data
             makeSummaries(markets, $('#summary-wrapper'), 9);

@@ -1,4 +1,4 @@
-drop table if exists Markets;
-create table Markets (
+drop table if exists markets;
+create table markets (
     FMID integer primary key
 );

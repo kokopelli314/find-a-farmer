@@ -2,26 +2,21 @@ import * as api from './market-data.js';
 
 
 function addSummary(market, parent) {
-    const summary = document.createElement('div');
-    summary.className = 'market-summary';
+    const summary = $('<div/>').addClass('market-summary');
 
     // Create header for element
     const name = document.createElement('h3');
-    const milesAndName = market['marketname'].split(/ (.+)/);
-    $('<span>' + milesAndName[0] + 'mi</span>').addClass('distance').appendTo(name);
-    $('<span> ' + milesAndName[1] + '</span>').addClass('market-name').appendTo(name);
+    $('<span> ' + market['MarketName'] + '</span>').addClass('market-name').appendTo(name);
 
-    api.detail(market['id'])
-        .then((data) => {
-            // make address linking to maps
-            const address = document.createElement('p');
-            const link = api.mapsLink(data);
-            const text = api.address(data);
-            address.innerHTML = '<a href=' + link + '>' + text + '</a>';
-            summary.appendChild(address);
-        });
+    // make address linking to maps
+    const address = document.createElement('p');
+    const link = api.mapsLink(market);
+    const text = api.address(market);
+    address.innerHTML = '<a href=' + link + '>' + text + '</a>';
 
-    summary.appendChild(name);
+    // update DOM
+    summary.append(name);
+    summary.append(address);
     parent.append(summary);
 }
 
@@ -81,6 +76,7 @@ function init() {
         api.local($('#zipcode').val())
             .then((data) => {
                 markets.data = data;
+                console.log(data);
 
                 // Display market data
                 makeSummaries(markets, $('#summary-wrapper'), 9);

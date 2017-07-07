@@ -20,7 +20,7 @@ app.config.update(dict(
     USERNAME='admin',
     PASSWORD='default',
 ))
-app.config.from_envvar('MARKETS_API_SETTINGS', silent=True)
+app.config.from_envvar('markets_API_SETTINGS', silent=True)
 
 
 @app.route(ROOT_URL + '/zip/<int:zip_code>', methods=['GET'])
@@ -35,7 +35,7 @@ def get_local_markets(zip_code):
     markets = []
     for area in data:
         area_zip = area['zip_code']
-        market = query_db('select * from Markets where zip=?', (area_zip,), one=True)
+        market = query_db('select * from markets where zip=?', (area_zip,), one=True)
         if market != None:
             markets.append(market)
 
@@ -45,7 +45,7 @@ def get_local_markets(zip_code):
 @app.route(ROOT_URL + '/id/<int:market_id>', methods=['GET'])
 def get_market_detail(market_id):
     """Get all data available for a single market."""
-    db_entry = query_db('select * from Markets where FMID=?', (market_id,), one=True)
+    db_entry = query_db('select * from markets where FMID=?', (market_id,), one=True)
     return json.dumps(db_entry)
 
 
@@ -72,11 +72,11 @@ def init_db():
         # Add each column (except FMID, which is already assigned as primary key)
         for column in columns:
             if column != 'FMID':
-                add_query = 'alter table Markets add column %s varchar(255)' % column
+                add_query = 'alter table markets add column %s varchar(255)' % column
                 cursor.execute(add_query)
 
         # Insert data
-        query = 'insert into Markets({0}) values ({1})'
+        query = 'insert into markets({0}) values ({1})'
         query = query.format(','.join(columns), ','.join('?' * len(columns)))
         for data in reader:
             cursor.execute(query, data)

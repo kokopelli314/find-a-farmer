@@ -6,7 +6,7 @@ const BASE_URL = 'http://127.0.0.1:5000/yourmarket/api';
 // Return summary of markets near zip
 export function local(zip, callback) {
     const url = BASE_URL + '/zip/' + zip;
-    return http.get(url, 'json').then((data) => data['results']);
+    return http.get(url, 'json');
 }
 
 // get detailed information for a certain market ID
