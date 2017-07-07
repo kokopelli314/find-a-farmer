@@ -151,19 +151,26 @@ function addSummary(market, parent) {
     address.innerHTML = '<a href=' + link + '>' + text + '</a>';
 
     // update DOM
-    console.log('hi');
     summary.append(name);
     summary.append(address);
     parent.append(summary);
 }
 
+function clearSummaries(markets, parent) {
+    parent.empty();
+    markets.lastDisplayed = 0;
+}
+
 function makeSummaries(markets, parent, numberToAdd) {
-    for (var i = markets.lastDisplayed; i < markets.lastDisplayed + numberToAdd; i++) {
-        // if all the markets have been displayed, break
-        if (i > markets.data.length - 1) {
-            break;
-        }
-        addSummary(markets.data[i], parent);
+    var i = markets.lastDisplayed;
+    var added = 0;
+    while (added < numberToAdd && i < markets.data.length) {
+        var market = markets.data[i];
+        i++;
+        // skip filtered out markets
+        if (market['filters'] > 0) continue;
+        addSummary(market, parent);
+        added++; // increment number added so far
     }
     markets.lastDisplayed = i;
     if (markets.hasMore()) {
@@ -171,18 +178,53 @@ function makeSummaries(markets, parent, numberToAdd) {
     }
 }
 
-function addTagToggle(tagText, parent) {
-    var tag = $('<button>' + tagText + '</button>').addClass('tag-toggle');
-    tag.appendTo(parent);
-    tag.click(function (e) {
-        tag.toggleClass('selected');
+function makeTags(markets, parent) {
+    var market = markets.data[0];
+    Object.keys(market).forEach(function (key) {
+        // include yes/no categories as filters
+        var value = String(market[key]).toUpperCase();
+        if (['Y', 'N', '-'].includes(value)) {
+            addTagToggle(key, markets, parent);
+        }
     });
 }
 
-function makeTags(markets, parent) {
-    for (var i = 0; i < markets.length; i++) {
-        addTagToggle(markets[i]['marketname'], parent);
+function addTagToggle(tagText, allMarkets, parent) {
+    var tag = $('<button>' + tagText + '</button>').addClass('tag-toggle');
+    tag.appendTo(parent);
+    tag.click(function (e) {
+        tagPress(tag, allMarkets);
+    });
+}
+
+function tagPress(tag, allMarkets) {
+    var addFilter;
+    var tagText = tag.text();
+
+    // already filtered: remove
+    if (allMarkets.filters.includes(tagText)) {
+        allMarkets.filters.splice(allMarkets.filters.indexOf(tagText), 1);
+        addFilter = false;
+        // not already filtered - add it
+    } else {
+        allMarkets.filters.push(tagText);
+        addFilter = true;
     }
+    tag.toggleClass('selected');
+    toggleFilter(allMarkets, tagText, addFilter);
+}
+
+// Toggle a specific tag on each market
+// @on {Bool} turn filter on (true) or off (false)
+function toggleFilter(markets, tag, on) {
+    for (var i = 0; i < markets.data.length; i++) {
+        var market = markets.data[i];
+        // if this market doesn't include tag, add (or remove) filter
+        if (market[tag] != 'Y') {
+            market['filters'] += on ? 1 : -1;
+        }
+    }
+    markets.redraw();
 }
 
 function init() {
@@ -190,10 +232,21 @@ function init() {
     var markets = {
         data: [],
         lastDisplayed: 0,
+        filters: [],
         // hasMore: true if there are more markets to display
         hasMore: function hasMore() {
             // can't use arrow function due to 'this' binding
             return this.data != undefined && this.lastDisplayed < this.data.length;
+        },
+        redraw: function redraw() {
+            clearSummaries(this, $('#summary-wrapper'));
+            makeSummaries(this, $('#summary-wrapper'), 9);
+        },
+        update: function update(data) {
+            this.data = data;
+            for (var i = 0; i < data.length; i++) {
+                this.data[i]['filters'] = 0;
+            }
         }
     };
 
@@ -206,8 +259,7 @@ function init() {
 
         // generate new results
         api.local($('#zipcode').val()).then(function (data) {
-            markets.data = data;
-            console.log(data);
+            markets.update(data);
 
             // Display market data
             makeSummaries(markets, $('#summary-wrapper'), 9);
