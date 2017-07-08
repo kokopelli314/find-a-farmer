@@ -173,7 +173,6 @@ function makeSummaries(markets, parent, numberToAdd) {
         added++; // increment number added so far
     }
     markets.lastDisplayed = i;
-    console.log('last = ' + markets.lastDisplayed + '; added=' + i);
 
     // Display button to get more results
     if (markets.hasMore()) {
@@ -183,7 +182,14 @@ function makeSummaries(markets, parent, numberToAdd) {
     }
 }
 
+// Create all tag elements to filter by market products, along with the "Clear Tags" option
 function makeTags(markets, parent) {
+    $('#clear-filters').removeClass('hidden');
+    $('#clear-filters').click(function (e) {
+        return clearFilters(markets);
+    });
+
+    // add market filters (tag elements)
     var market = markets.data[0];
     Object.keys(market).forEach(function (key) {
         // include yes/no categories as filters
@@ -230,6 +236,21 @@ function toggleFilter(markets, tag, on) {
         }
     }
     markets.redraw();
+}
+
+// Clear all filters from the market data
+function clearFilters(markets) {
+    // update markets data
+    markets.data.map(function (market) {
+        market['filters'] = 0;
+    });
+    markets.filters = [];
+    markets.redraw();
+
+    // unselect all the tags
+    $('#tag-toggle-wrapper').children().each(function (index) {
+        $(this).removeClass('selected');
+    });
 }
 
 function init() {

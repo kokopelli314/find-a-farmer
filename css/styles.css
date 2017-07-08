@@ -46,17 +46,22 @@ input[type="text"] {
 
 .tag-toggle {
     margin: 2px 5px;
-    background-color: hsl(197, 44%, 79%);
-    color: #fefefe;
+    background-color: hsl(198, 44%, 79%);
+    color: #fafafa;
     border: 0;
     border-radius: 10px;
+    font-size: 1.5em;
+    transition: 0.2s all;
 }
-.tag-toggle:hover {
+.tag-toggle:hover, #clear-filters:hover {
     background-color: hsl(198, 62%, 71%);
 }
 .tag-toggle.selected {
     background-color: hsl(198, 62%, 61%);
-    color: #fafafa;
+}
+
+#clear-filters {
+    background-color: hsl(196, 30%, 29%);
 }
 
 
@@ -92,4 +97,10 @@ input[type="text"] {
 }
 .market-summary a:hover {
     color: #666;
+}
+
+
+/* General purpose */
+.hidden {
+    display: none;
 }
