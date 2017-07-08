@@ -228,13 +228,13 @@ function tagPress(tag, allMarkets) {
 // Toggle a specific tag on each market
 // @on {Bool} turn filter on (true) or off (false)
 function toggleFilter(markets, tag, on) {
-    for (var i = 0; i < markets.data.length; i++) {
-        var market = markets.data[i];
+    markets.data.map(function (market) {
         // if this market doesn't include tag, add (or remove) filter
         if (market[tag] != 'Y') {
             market['filters'] += on ? 1 : -1;
         }
-    }
+    });
+
     markets.redraw();
 }
 
@@ -270,9 +270,9 @@ function init() {
         },
         update: function update(data) {
             this.data = data;
-            for (var i = 0; i < data.length; i++) {
-                this.data[i]['filters'] = 0;
-            }
+            this.data.map(function (market) {
+                market['filters'] = 0;
+            });
         }
     };
 
