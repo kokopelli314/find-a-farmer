@@ -87,9 +87,10 @@ input[type="text"] {
 }
 
 /* Title */
-.market-summary h3 {
+.market-summary h3, .market-name {
     font-family: serif;
     color: #444;
+    min-height: 2em;
 }
 
 .market-summary a, a:visited {

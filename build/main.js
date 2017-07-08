@@ -137,30 +137,6 @@ var api = _interopRequireWildcard(_marketData);
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-function addSummary(market, parent) {
-    var summary = $('<div/>').addClass('market-summary');
-
-    // Create header for element
-    var name = document.createElement('h3');
-    $('<span> ' + market['MarketName'] + '</span>').addClass('market-name').appendTo(name);
-
-    // make address linking to maps
-    var address = document.createElement('p');
-    var link = api.mapsLink(market);
-    var text = api.address(market);
-    address.innerHTML = '<a href=' + link + '>' + text + '</a>';
-
-    // update DOM
-    summary.append(name);
-    summary.append(address);
-    parent.append(summary);
-}
-
-function clearSummaries(markets, parent) {
-    parent.empty();
-    markets.lastDisplayed = 0;
-}
-
 function makeSummaries(markets, parent, numberToAdd) {
     var i = markets.lastDisplayed;
     var added = 0;
@@ -180,6 +156,31 @@ function makeSummaries(markets, parent, numberToAdd) {
     } else {
         $('#more-results').removeClass('visible');
     }
+}
+
+function clearSummaries(markets, parent) {
+    parent.empty();
+    markets.lastDisplayed = 0;
+}
+
+function addSummary(market, parent) {
+    var summary = $('<div/>').addClass('market-summary');
+
+    // Create header for element
+    var name = $('<h3/>').addClass('market-name');
+    var link = $('<a/>').attr('href', market['Website'] || "#").text(market['MarketName']);
+    name.append(link);
+
+    // make address linking to maps
+    var address = document.createElement('p');
+    var mapLink = api.mapsLink(market);
+    var text = api.address(market);
+    address.innerHTML = '<a href=' + mapLink + '>' + text + '</a>';
+
+    // update DOM
+    summary.append(name);
+    summary.append(address);
+    parent.append(summary);
 }
 
 // Create all tag elements to filter by market products, along with the "Clear Tags" option

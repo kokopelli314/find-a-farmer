@@ -1,31 +1,6 @@
 import * as api from './market-data.js';
 
 
-function addSummary(market, parent) {
-    const summary = $('<div/>').addClass('market-summary');
-
-    // Create header for element
-    const name = document.createElement('h3');
-    $('<span> ' + market['MarketName'] + '</span>').addClass('market-name').appendTo(name);
-
-    // make address linking to maps
-    const address = document.createElement('p');
-    const link = api.mapsLink(market);
-    const text = api.address(market);
-    address.innerHTML = '<a href=' + link + '>' + text + '</a>';
-
-    // update DOM
-    summary.append(name);
-    summary.append(address);
-    parent.append(summary);
-}
-
-
-function clearSummaries(markets, parent) {
-    parent.empty();
-    markets.lastDisplayed = 0;
-}
-
 function makeSummaries(markets, parent, numberToAdd) {
     let i = markets.lastDisplayed;
     let added = 0;
@@ -45,6 +20,32 @@ function makeSummaries(markets, parent, numberToAdd) {
     } else {
         $('#more-results').removeClass('visible');
     }
+}
+
+function clearSummaries(markets, parent) {
+    parent.empty();
+    markets.lastDisplayed = 0;
+}
+
+function addSummary(market, parent) {
+    const summary = $('<div/>').addClass('market-summary');
+
+    // Create header for element
+    let name = $('<h3/>').addClass('market-name');
+    let link = $('<a/>').attr('href', market['Website'] || "#")
+                        .text(market['MarketName']);
+    name.append(link);
+
+    // make address linking to maps
+    const address = document.createElement('p');
+    const mapLink = api.mapsLink(market);
+    const text = api.address(market);
+    address.innerHTML = '<a href=' + mapLink + '>' + text + '</a>';
+
+    // update DOM
+    summary.append(name);
+    summary.append(address);
+    parent.append(summary);
 }
 
 
